@@ -13,7 +13,6 @@ async function run() {
 
   const sql = fs.readFileSync(schemaPath, 'utf8');
 
-  // ✅ FIX: pass STRING directly
   const conn = await mysql.createConnection(getDbConfig());
 
   try {
