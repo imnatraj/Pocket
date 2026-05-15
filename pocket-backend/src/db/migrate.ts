@@ -16,6 +16,7 @@ async function run() {
   const conn = await mysql.createConnection({
     uri: getDbConfig(),
     multipleStatements: true,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
   });
 
   try {
