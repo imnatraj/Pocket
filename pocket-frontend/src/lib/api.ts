@@ -2,8 +2,15 @@
 // Configure with VITE_API_URL (e.g. http://localhost:4000/api).
 // If unreachable, callers can fall back to localStorage so the UI stays usable.
 
-export const API_URL =
-  (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+export const API_URL = (() => {
+  const url = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+  // If the URL is set but doesn't end with /api, append it.
+  // This matches the backend's app.use('/api', ...) structure.
+  if (url && !url.toLowerCase().endsWith("/api")) {
+    return `${url}/api`;
+  }
+  return url;
+})();
 
 const TOKEN_KEY = "pocket.jwt";
 
