@@ -101,8 +101,6 @@ app.use(errorHandler);
 
 const PORT = Number(process.env.PORT || 4000);
 
-console.log('DB_HOST:', process.env.DB_HOST);
-
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✔ Pocket API running on port ${PORT}`);
   console.log(`✔ Health: /health`);
