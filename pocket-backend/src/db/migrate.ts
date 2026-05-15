@@ -13,7 +13,10 @@ async function run() {
 
   const sql = fs.readFileSync(schemaPath, 'utf8');
 
-  const conn = await mysql.createConnection(getDbConfig());
+  const conn = await mysql.createConnection({
+    uri: getDbConfig(),
+    multipleStatements: true,
+  });
 
   try {
     console.log('Running migrations...');

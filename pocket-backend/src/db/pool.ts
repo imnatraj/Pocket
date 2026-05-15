@@ -5,7 +5,12 @@ import { getDbConfig } from './config.js';
 
 const dbUrl = getDbConfig();
 
-export const pool = mysql.createPool(dbUrl);
+export const pool = mysql.createPool({
+  uri: getDbConfig(),
+  waitForConnections: true,
+  connectionLimit: 10,
+  decimalNumbers: true,
+});
 
 export async function ping() {
   const conn = await pool.getConnection();
