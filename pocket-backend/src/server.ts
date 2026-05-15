@@ -7,77 +7,88 @@ import { ping } from './db/pool.js';
 import authRoutes from './routes/auth.js';
 import transactionRoutes from './routes/transactions.js';
 import budgetRoutes from './routes/budgets.js';
-
 import recurringRoutes from './routes/recurring.js';
 import { errorHandler } from './middleware/error.js';
-import { processRecurringTransactions } from './services/recurringService.js';
 
 const app = express();
 
-// Start recurring processor (every minute)
-// setInterval(processRecurringTransactions, 60 * 1000);
-// Run once on start
-// processRecurringTransactions();
+/* ---------------- CORS ---------------- */
 
-// Security Headers
-app.use(helmet());
-
-// CORS
-const origins = (process.env.CORS_ORIGIN || '*').split(',').map((s) => s.trim());
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      if (!origin || origins.includes('*') || origins.includes(origin)) return cb(null, true);
-      cb(new Error('CORS blocked: ' + origin));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Authorization'],
-  })
-);
-app.options('*', cors({
+const corsOptions = {
   origin: (origin, cb) => {
-    if (!origin || origins.includes('*') || origins.includes(origin)) return cb(null, true);
-    cb(new Error('CORS blocked: ' + origin));
+    const origins = (process.env.CORS_ORIGIN || '*')
+      .split(',')
+      .map((s) => s.trim());
+
+    if (!origin || origins.includes('*') || origins.includes(origin)) {
+      return cb(null, true);
+    }
+
+    return cb(new Error('CORS blocked: ' + origin));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  exposedHeaders: ['Authorization'],
+};
 
-// Rate Limiting
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+/* ---------------- Security ---------------- */
+
+app.use(helmet());
+
+/* ---------------- Rate Limit ---------------- */
+
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again after 15 minutes',
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests, try again later',
 });
+
 app.use('/api/', limiter);
+
+/* ---------------- Body Parser ---------------- */
 
 app.use(express.json({ limit: '5mb' }));
 
-// Health Check
+/* ---------------- Health Check ---------------- */
+
 app.get('/health', async (_req, res) => {
   try {
     await ping();
-    res.json({ ok: true, db: 'up', timestamp: new Date().toISOString() });
+    res.json({
+      ok: true,
+      db: 'up',
+      timestamp: new Date().toISOString(),
+    });
   } catch (e: any) {
-    res.status(500).json({ ok: false, db: 'down', error: e.message });
+    console.error('DB ERROR:', e);
+    res.status(500).json({
+      ok: false,
+      db: 'down',
+      error: e.message,
+    });
   }
 });
 
-// Routes
+/* ---------------- Routes ---------------- */
+
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
-
 app.use('/api/recurring', recurringRoutes);
 
-// Error Handling
+/* ---------------- Error Handler ---------------- */
+
 app.use(errorHandler);
 
+/* ---------------- Server Start ---------------- */
+
 const PORT = Number(process.env.PORT || 4000);
-app.listen(PORT, () => {
-  console.log(`✔ Pocket API listening on http://localhost:${PORT}`);
-  console.log(`  Health: http://localhost:${PORT}/health`);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✔ Pocket API running on port ${PORT}`);
+  console.log(`✔ Health: /health`);
 });
