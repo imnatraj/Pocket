@@ -1,26 +1,17 @@
+// pool.ts
 import 'dotenv/config';
-import fs from 'node:fs';
-import path from 'node:path';
 import mysql from 'mysql2/promise';
-
 import { getDbConfig } from './config.js';
 
-const sql = fs.readFileSync(path.join(process.cwd(), 'sql', 'schema.sql'), 'utf8');
+const dbUrl = getDbConfig();
 
-const run = async () => {
-  const conn = await mysql.createConnection({
-    ...getDbConfig(),
-    multipleStatements: true,
-  });
+export const pool = mysql.createPool(dbUrl);
 
-  console.log('Running migrations…');
-  await conn.query(sql);
-  console.log('✔ Schema ready');
-  await conn.end();
-  process.exit(0);
-};
-
-run().catch((e) => {
-  console.error('Migration failed:', e);
-  process.exit(1);
-});
+export async function ping() {
+  const conn = await pool.getConnection();
+  try {
+    await conn.query('SELECT 1');
+  } finally {
+    conn.release();
+  }
+}

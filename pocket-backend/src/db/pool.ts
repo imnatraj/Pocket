@@ -1,14 +1,11 @@
+// pool.ts
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
-
 import { getDbConfig } from './config.js';
 
-export const pool = mysql.createPool({
-  ...getDbConfig(),
-  waitForConnections: true,
-  connectionLimit: 10,
-  decimalNumbers: true,
-});
+const dbUrl = getDbConfig();
+
+export const pool = mysql.createPool(dbUrl);
 
 export async function ping() {
   const conn = await pool.getConnection();
