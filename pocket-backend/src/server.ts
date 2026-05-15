@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
@@ -15,13 +15,16 @@ import { errorHandler } from './middleware/error.js';
 
 const app = express();
 
-/* ---------------- TRUST PROXY (RAILWAY REQUIRED) ---------------- */
+/* ---------------- TRUST PROXY (RAILWAY) ---------------- */
 app.set('trust proxy', 1);
 
-/* ---------------- CORS CONFIG ---------------- */
+/* ---------------- CORS ---------------- */
 
-const corsOptions = {
-  origin: (origin, cb) => {
+const corsOptions: CorsOptions = {
+  origin: (
+    origin: string | undefined,
+    cb: (err: Error | null, allow?: boolean) => void
+  ) => {
     const allowedOrigins = (process.env.CORS_ORIGIN || '*')
       .split(',')
       .map((o) => o.trim());
@@ -100,5 +103,5 @@ const PORT = Number(process.env.PORT || 4000);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✔ Pocket API running on port ${PORT}`);
-  console.log(`✔ Health check: /health`);
+  console.log(`✔ Health: /health`);
 });
