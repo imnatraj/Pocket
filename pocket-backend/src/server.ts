@@ -21,47 +21,27 @@ app.set('trust proxy', 1);
 /* ---------------- CORS ---------------- */
 
 const corsOptions: CorsOptions = {
-  origin: (
-    origin: string | undefined,
-    cb: (err: Error | null, allow?: boolean) => void
-  ) => {
-    // If no origin (like mobile apps or curl), allow it
-    if (!origin) return cb(null, true);
-
-    const rawAllowed = process.env.CORS_ORIGIN || '*';
-    const allowedOrigins = rawAllowed
-      .split(',')
-      .map((o) => o.trim().replace(/\/$/, '').replace(/^["']|["']$/g, ''));
-
-    // Check if origin matches any allowed origin (after normalization)
-    const normalizedOrigin = origin.replace(/\/$/, '');
-    const isAllowed =
-      allowedOrigins.includes('*') ||
-      allowedOrigins.includes(normalizedOrigin) ||
-      allowedOrigins.some((ao) => normalizedOrigin.endsWith(ao.replace(/^\*\./, '')));
-
-    if (isAllowed) {
-      return cb(null, true);
-    }
-
-    // Instead of error, return false to let CORS middleware handle it gracefully
-    return cb(null, false);
-  },
+  origin: true, // This will reflect the request origin back to the client
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Authorization'],
-  preflightContinue: false,
   optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-// No need for separate app.options('*', ...) as app.use(cors()) handles it if placed before routes
+app.options('*', cors(corsOptions)); // Explicitly handle preflight for all paths
+
 
 
 /* ---------------- SECURITY ---------------- */
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginOpenerPolicy: false,
+  })
+);
 
 /* ---------------- RATE LIMIT ---------------- */
 
@@ -78,7 +58,7 @@ app.use('/api/', limiter);
 
 app.use(express.json({ limit: '5mb' }));
 
-/* ---------------- HEALTH CHECK ---------------- */
+/* ---------------- HEALTH CHECK & DEBUG ---------------- */
 
 app.get('/health', async (_req, res) => {
   try {
@@ -99,6 +79,17 @@ app.get('/health', async (_req, res) => {
       error: err.message,
     });
   }
+});
+
+app.get('/api/debug-cors', (req, res) => {
+  res.json({
+    cors_origin_env: process.env.CORS_ORIGIN,
+    allowed_origins: (process.env.CORS_ORIGIN || '*')
+      .split(',')
+      .map((o) => o.trim().replace(/\/$/, '').replace(/^["']|["']$/g, '')),
+    request_origin: req.headers.origin,
+    trust_proxy: app.get('trust proxy'),
+  });
 });
 
 /* ---------------- ROUTES ---------------- */
