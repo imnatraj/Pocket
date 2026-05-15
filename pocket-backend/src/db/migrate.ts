@@ -3,11 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import mysql from 'mysql2/promise';
 
+import { getDbConfig } from './config.js';
+
 const sql = fs.readFileSync(path.join(process.cwd(), 'sql', 'schema.sql'), 'utf8');
 
 const run = async () => {
   const conn = await mysql.createConnection({
-    uri: process.env.DATABASE_URL,
+    ...getDbConfig(),
     multipleStatements: true,
   });
 
