@@ -7,10 +7,7 @@ const sql = fs.readFileSync(path.join(process.cwd(), 'sql', 'schema.sql'), 'utf8
 
 const run = async () => {
   const conn = await mysql.createConnection({
-    host: process.env.DB_HOST || '127.0.0.1',
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
+    uri: process.env.DATABASE_URL,
     multipleStatements: true,
   });
 
