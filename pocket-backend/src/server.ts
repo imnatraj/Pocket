@@ -3,28 +3,34 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+
 import { ping } from './db/pool.js';
+
 import authRoutes from './routes/auth.js';
 import transactionRoutes from './routes/transactions.js';
 import budgetRoutes from './routes/budgets.js';
 import recurringRoutes from './routes/recurring.js';
+
 import { errorHandler } from './middleware/error.js';
 
 const app = express();
 
-/* ---------------- CORS ---------------- */
+/* ---------------- TRUST PROXY (RAILWAY REQUIRED) ---------------- */
+app.set('trust proxy', 1);
+
+/* ---------------- CORS CONFIG ---------------- */
 
 const corsOptions = {
   origin: (origin, cb) => {
-    const origins = (process.env.CORS_ORIGIN || '*')
+    const allowedOrigins = (process.env.CORS_ORIGIN || '*')
       .split(',')
-      .map((s) => s.trim());
+      .map((o) => o.trim());
 
-    if (!origin || origins.includes('*') || origins.includes(origin)) {
+    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
       return cb(null, true);
     }
 
-    return cb(new Error('CORS blocked: ' + origin));
+    return cb(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -35,60 +41,64 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-/* ---------------- Security ---------------- */
+/* ---------------- SECURITY ---------------- */
 
 app.use(helmet());
 
-/* ---------------- Rate Limit ---------------- */
+/* ---------------- RATE LIMIT ---------------- */
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: 'Too many requests, try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.use('/api/', limiter);
 
-/* ---------------- Body Parser ---------------- */
+/* ---------------- BODY PARSER ---------------- */
 
 app.use(express.json({ limit: '5mb' }));
 
-/* ---------------- Health Check ---------------- */
+/* ---------------- HEALTH CHECK ---------------- */
 
 app.get('/health', async (_req, res) => {
   try {
     await ping();
-    res.json({
+
+    return res.json({
       ok: true,
       db: 'up',
+      service: 'pocket-api',
       timestamp: new Date().toISOString(),
     });
-  } catch (e: any) {
-    console.error('DB ERROR:', e);
-    res.status(500).json({
+  } catch (err: any) {
+    console.error('DB ERROR:', err);
+
+    return res.status(500).json({
       ok: false,
       db: 'down',
-      error: e.message,
+      error: err.message,
     });
   }
 });
 
-/* ---------------- Routes ---------------- */
+/* ---------------- ROUTES ---------------- */
 
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/recurring', recurringRoutes);
 
-/* ---------------- Error Handler ---------------- */
+/* ---------------- ERROR HANDLER ---------------- */
 
 app.use(errorHandler);
 
-/* ---------------- Server Start ---------------- */
+/* ---------------- START SERVER ---------------- */
 
 const PORT = Number(process.env.PORT || 4000);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✔ Pocket API running on port ${PORT}`);
-  console.log(`✔ Health: /health`);
+  console.log(`✔ Health check: /health`);
 });
