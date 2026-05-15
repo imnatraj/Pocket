@@ -3,19 +3,7 @@ import 'dotenv/config';
 import fs from 'node:fs';
 import path from 'node:path';
 import mysql from 'mysql2/promise';
-
-const isPlaceholder = (val?: string) =>
-  !val || val.startsWith('${{') || val.includes('${');
-
-const getDbUrl = (): string => {
-  const url = process.env.DATABASE_URL || process.env.MYSQL_URL;
-
-  if (!url || isPlaceholder(url)) {
-    throw new Error('DATABASE_URL / MYSQL_URL is required');
-  }
-
-  return url;
-};
+import { getDbConfig } from './config.js';
 
 async function run() {
   const schemaPath = path.join(process.cwd(), 'sql', 'schema.sql');
@@ -27,7 +15,7 @@ async function run() {
   const sql = fs.readFileSync(schemaPath, 'utf8');
 
   const conn = await mysql.createConnection({
-    uri: getDbUrl(),
+    uri: getDbConfig(),
     multipleStatements: true,
   });
 
