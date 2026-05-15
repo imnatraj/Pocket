@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fintech Modern — Personal Expense Tracker
+   All colors HSL. Emerald for income, Rose for expenses.
+*/
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 222 30% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 30% 12%;
+    --card-elevated: 0 0% 100%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 30% 12%;
+
+    --primary: 158 64% 42%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 158 75% 55%;
+
+    --secondary: 220 15% 93%;
+    --secondary-foreground: 222 30% 18%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 222 12% 45%;
+
+    --accent: 220 15% 93%;
+    --accent-foreground: 222 30% 18%;
+
+    --income: 158 64% 42%;
+    --income-foreground: 0 0% 100%;
+    --income-soft: 158 60% 92%;
+
+    --expense: 350 82% 58%;
+    --expense-foreground: 0 0% 100%;
+    --expense-soft: 350 80% 95%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 350 82% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 90%;
+    --ring: 158 64% 42%;
+
+    --radius: 1rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(158 75% 45%), hsl(168 85% 55%));
+    --gradient-card: linear-gradient(135deg, hsl(158 64% 42% / 0.05) 0%, hsl(168 70% 38% / 0.05) 100%);
+    --gradient-expense: linear-gradient(135deg, hsl(350 82% 58%), hsl(340 85% 65%));
+    --gradient-surface: linear-gradient(180deg, hsl(220 20% 99%), hsl(220 20% 96%));
+
+    --shadow-card: 0 4px 24px -8px hsl(222 30% 12% / 0.08);
+    --shadow-elevated: 0 12px 40px -12px hsl(222 30% 12% / 0.18);
+    --shadow-glow: 0 8px 32px -8px hsl(158 64% 42% / 0.4);
+    --shadow-glow-sm: 0 4px 16px -4px hsl(158 64% 42% / 0.3);
+  }
+
+  .dark {
+    --background: 222 32% 4%;
+    --foreground: 210 30% 98%;
+
+    --card: 222 25% 8%;
+    --card-foreground: 210 30% 98%;
+    --card-elevated: 222 25% 10%;
+
+    --popover: 222 25% 8%;
+    --popover-foreground: 210 30% 98%;
+
+    --primary: 158 75% 55%;
+    --primary-foreground: 222 47% 6%;
+    --primary-glow: 158 85% 65%;
+
+    --secondary: 222 22% 12%;
+    --secondary-foreground: 210 30% 98%;
+
+    --muted: 222 22% 11%;
+    --muted-foreground: 215 18% 65%;
+
+    --accent: 222 22% 15%;
+    --accent-foreground: 210 30% 98%;
+
+    --income: 158 75% 55%;
+    --income-foreground: 222 47% 6%;
+    --income-soft: 158 50% 15%;
+
+    --expense: 350 85% 65%;
+    --expense-foreground: 0 0% 100%;
+    --expense-soft: 350 50% 18%;
+
+    --warning: 38 95% 55%;
+    --warning-foreground: 222 30% 8%;
+
+    --destructive: 350 85% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 22% 15%;
+    --input: 222 22% 15%;
+    --ring: 158 75% 55%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(158 80% 50%), hsl(172 85% 60%));
+    --gradient-card: linear-gradient(135deg, hsl(158 75% 55% / 0.08) 0%, hsl(172 85% 60% / 0.03) 100%);
+    --gradient-expense: linear-gradient(135deg, hsl(350 75% 55%), hsl(340 80% 62%));
+    --gradient-surface: linear-gradient(180deg, hsl(222 32% 6%), hsl(222 32% 3%));
+
+    --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.6);
+    --shadow-elevated: 0 20px 60px -15px hsl(0 0% 0% / 0.8);
+    --shadow-glow: 0 8px 40px -8px hsl(158 75% 55% / 0.5);
+    --shadow-glow-sm: 0 4px 20px -4px hsl(158 75% 55% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground;
+    font-feature-settings: "cv11", "ss01", "ss03", "tnum";
+    background-image: radial-gradient(at 0% 0%, hsl(var(--primary) / 0.03) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, hsl(var(--income) / 0.03) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Hide scrollbars on the app frame for a native feel */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@layer utilities {
+  .bg-gradient-primary { background-image: var(--gradient-primary); }
+  .bg-gradient-card { background-image: var(--gradient-card); }
+  .bg-gradient-expense { background-image: var(--gradient-expense); }
+  .bg-gradient-surface { background-image: var(--gradient-surface); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .shadow-glow-sm { box-shadow: var(--shadow-glow-sm); }
+  
+  .glass-card {
+    @apply bg-card/60 backdrop-blur-xl;
+  }
+  
+  .dark .glass-card {
+    @apply bg-card/40 backdrop-blur-2xl border-white/5;
+  }
+  
+  .text-glow-primary {
+    text-shadow: 0 0 12px hsl(var(--primary) / 0.4);
+  }
+}
