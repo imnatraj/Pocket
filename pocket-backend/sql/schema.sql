@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS pocket CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE pocket;
-
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id            CHAR(36) PRIMARY KEY,
@@ -15,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Categories table
 CREATE TABLE IF NOT EXISTS categories (
   id          CHAR(36) PRIMARY KEY,
-  user_id     CHAR(36), -- NULL for system categories
+  user_id     CHAR(36),
   name        VARCHAR(100) NOT NULL,
   type        ENUM('income', 'expense') NOT NULL,
   icon        VARCHAR(50),
@@ -34,10 +31,10 @@ CREATE TABLE IF NOT EXISTS transactions (
   amount      DECIMAL(14,2) NOT NULL,
   type        ENUM('income', 'expense') NOT NULL,
   category_id CHAR(36),
-  date        DATETIME NOT NULL, -- Stored in UTC
+  date        DATETIME NOT NULL,
   note        TEXT,
   receipt     LONGTEXT,
-  tags        TEXT, -- Comma-separated or JSON
+  tags        TEXT,
   is_recurring BOOLEAN DEFAULT FALSE,
   created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_tx_user_date (user_id, date),
