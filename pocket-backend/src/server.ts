@@ -25,24 +25,39 @@ const corsOptions: CorsOptions = {
     origin: string | undefined,
     cb: (err: Error | null, allow?: boolean) => void
   ) => {
-    const allowedOrigins = (process.env.CORS_ORIGIN || '*')
-      .split(',')
-      .map((o) => o.trim());
+    // If no origin (like mobile apps or curl), allow it
+    if (!origin) return cb(null, true);
 
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    const rawAllowed = process.env.CORS_ORIGIN || '*';
+    const allowedOrigins = rawAllowed
+      .split(',')
+      .map((o) => o.trim().replace(/\/$/, '').replace(/^["']|["']$/g, ''));
+
+    // Check if origin matches any allowed origin (after normalization)
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    const isAllowed =
+      allowedOrigins.includes('*') ||
+      allowedOrigins.includes(normalizedOrigin) ||
+      allowedOrigins.some((ao) => normalizedOrigin.endsWith(ao.replace(/^\*\./, '')));
+
+    if (isAllowed) {
       return cb(null, true);
     }
 
-    return cb(new Error(`CORS blocked: ${origin}`));
+    // Instead of error, return false to let CORS middleware handle it gracefully
+    return cb(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// No need for separate app.options('*', ...) as app.use(cors()) handles it if placed before routes
+
 
 /* ---------------- SECURITY ---------------- */
 
@@ -96,6 +111,16 @@ app.use('/api/recurring', recurringRoutes);
 /* ---------------- ERROR HANDLER ---------------- */
 
 app.use(errorHandler);
+
+// Global handlers for unexpected crashes
+process.on('unhandledRejection', (reason) => {
+  console.error('❌ Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+  process.exit(1);
+});
 
 /* ---------------- START SERVER ---------------- */
 
