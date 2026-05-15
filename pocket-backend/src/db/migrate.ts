@@ -1,4 +1,3 @@
-// src/db/migrate.ts
 import 'dotenv/config';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -14,10 +13,8 @@ async function run() {
 
   const sql = fs.readFileSync(schemaPath, 'utf8');
 
-  const conn = await mysql.createConnection({
-    uri: getDbConfig(),
-    multipleStatements: true,
-  });
+  // ✅ FIX: pass STRING directly
+  const conn = await mysql.createConnection(getDbConfig());
 
   try {
     console.log('Running migrations...');
