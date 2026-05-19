@@ -16,7 +16,7 @@ import { errorHandler } from './middleware/error.js';
 const app = express();
 
 /* ---------------- TRUST PROXY (RAILWAY) ---------------- */
-app.set('trust proxy', 1);
+// app.set('trust proxy', 1);
 
 /* ---------------- CORS ---------------- */
 
