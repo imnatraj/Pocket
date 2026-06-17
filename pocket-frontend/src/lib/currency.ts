@@ -55,7 +55,7 @@ export function formatCurrency(
 }
 
 /**
- * Sanitizes and parses a currency input string to a Decimal.
+ * Sanitizes and parses a currency input string into a Decimal.
  */
 export function parseCurrencyInput(input: string): Decimal {
   const sanitized = input.replace(/[^0-9.-]/g, "");
