@@ -39,24 +39,19 @@ export function formatCurrency(
   const abs = value.abs();
   
   const formatter = new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
     maximumFractionDigits: opts?.compact && abs.gte(1000) ? 1 : 2,
     minimumFractionDigits: opts?.compact && abs.gte(1000) ? 0 : 2,
     notation: opts?.compact && abs.gte(1000) ? "compact" : "standard",
   });
 
-  // Intl.NumberFormat often adds a non-breaking space or other characters.
-  // We format the absolute value and handle the sign ourselves for consistency.
-  const formatted = formatter.format(abs.toNumber());
+  // Format the raw number without the currency symbol
+  const formattedNumber = formatter.format(abs.toNumber());
+  const symbol = SYMBOLS[currency] || currency;
   
   const sign = opts?.signed ? (value.gt(0) ? "+" : value.lt(0) ? "−" : "") : (value.lt(0) ? "−" : "");
   
-  // Clean up any double signs or issues with Intl formatting
-  const result = `${sign}${formatted.replace(/[−-]/, "")}`;
-  
-  // Ensure a strong non-breaking space between symbol and number to prevent visual overlap
-  return result.replace(/([^0-9.,]+)\s*([0-9])/, "$1\u00A0$2");
+  // Combine sign, symbol, a guaranteed space, and the formatted number
+  return `${sign}${symbol} ${formattedNumber}`;
 }
 
 /**
