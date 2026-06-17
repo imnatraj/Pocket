@@ -164,7 +164,7 @@ export default function Dashboard() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="font-display text-lg font-bold">Spending by category</h2>
-                <p className="text-xs text-muted-foreground">{toIST(new Date()).format("MMMM yyyy")}</p>
+                <p className="text-xs text-muted-foreground">{toIST(new Date()).format("MMMM YYYY")}</p>
               </div>
             </div>
             <div className="h-[280px]">

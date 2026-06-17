@@ -55,8 +55,8 @@ export function formatCurrency(
   // Clean up any double signs or issues with Intl formatting
   const result = `${sign}${formatted.replace(/[−-]/, "")}`;
   
-  // Add a space between the currency symbol and the number to prevent visual overlap (e.g. ₹2K -> ₹ 2K)
-  return result.replace(/([^0-9\s.,]+)([0-9])/, "$1 $2");
+  // Ensure a strong non-breaking space between symbol and number to prevent visual overlap
+  return result.replace(/([^0-9.,]+)\s*([0-9])/, "$1\u00A0$2");
 }
 
 /**
