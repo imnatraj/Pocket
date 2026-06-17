@@ -5,7 +5,7 @@ export const SYMBOLS: Record<Currency, string> = {
   USD: "$",
   EUR: "€",
   GBP: "£",
-  INR: "₹",
+  INR: "Rs.",
 };
 
 /**

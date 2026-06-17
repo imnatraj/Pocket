@@ -53,7 +53,7 @@ export const Currency = React.forwardRef<HTMLSpanElement, CurrencyProps>(
         {/* Symbol with proper spacing */}
         <span className={cn(
           "select-none opacity-80 font-medium tracking-normal",
-          currency === "INR" ? "ml-0.5 mr-1.5" : "mr-1"
+          currency === "INR" ? "ml-0.5 mr-1" : "mr-1"
         )}>
           {symbol}
         </span>
