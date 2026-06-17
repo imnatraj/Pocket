@@ -50,8 +50,8 @@ export function formatCurrency(
   
   const sign = opts?.signed ? (value.gt(0) ? "+" : value.lt(0) ? "−" : "") : (value.lt(0) ? "−" : "");
   
-  // Combine sign, symbol, a guaranteed space, and the formatted number
-  return `${sign}${symbol} ${formattedNumber}`;
+  // Combine sign, symbol, a guaranteed non-breaking space, and the formatted number
+  return `${sign}${symbol}\u00A0${formattedNumber}`;
 }
 
 /**
