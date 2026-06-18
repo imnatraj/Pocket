@@ -195,7 +195,7 @@ export function TransactionDialog({ open, onOpenChange, editing }: Props) {
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"))}
               placeholder="0.00"
-              className="w-48 bg-transparent text-center text-5xl font-bold tracking-tighter outline-none placeholder:text-muted-foreground/20 text-foreground"
+              className="w-72 bg-transparent text-center text-5xl font-bold tracking-tighter outline-none placeholder:text-muted-foreground/20 text-foreground"
             />
           </div>
         </div>
